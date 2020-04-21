@@ -157,12 +157,19 @@ renderApp(store);
 
 ## ファイルを分割する
 .
+
 ├── index.js
+
 ├── components
+
       └── TodoApp.js
+
 ├── actions
+
       └── tasks.js
+
 └── reducers
+
       └── tasks.js
 
 ```js:reducers/tasks.js
@@ -296,11 +303,17 @@ React以外でも同じ現象が起こる可能性がありますので共有し
 # Todoアプリにreact-reduxを導入する
 
 .
+
 ├── index.js
+
 ├── containers ※追加
+
     └── TodoApp.js ※追加
+
 ├── components
+
 ├── actions
+
 └── reducers
 
 ```jsx:containers/TodoApp.js
