@@ -1,3 +1,15 @@
+# プロジェクトダウンロード&起動
+
+```bash
+$ git clone https://github.com/dai-570415/react-redux-todo-app.git
+
+$ cd react-redux-todo-app
+
+$ npm install
+
+$ npm start
+```
+
 # Redux
 
 Reduxとは状態管理のモジュール
