@@ -1,17 +1,22 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import { render } from 'react-dom';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import tasksReducer from './reducers/tasks';
+import TodoApp from './containers/TodoApp';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+// ReducerをStateに登録
+const store = createStore(tasksReducer);
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+// 最終htmlに集約
+const renderApp = (store) => {
+  render(
+    <Provider store={store}>
+      <TodoApp />
+    </Provider>,
+    document.getElementById('root')
+  );
+}
+
+store.subscribe(() => renderApp(store));
+renderApp(store);

@@ -1,68 +1,383 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Redux
 
-## Available Scripts
+Reduxとは状態管理のモジュール
 
-In the project directory, you can run:
+インストール
 
-### `npm start`
+```bash
+$ npm install --save redux
+```
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Reduxの基本形
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+```js:index.js
+import { createStore } from 'redux';
 
-### `npm test`
+// 初期値
+const initialState = {
+    tasks: [],
+}
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+// Reducer(actionから渡ってきた情報で状態を変化させる)
+const tasksReducer = (state = initialState, action) => {
+  switch(action.type) {
+    case 'ADD_TASK':
+      return {
+        ...state,
+        tasks: state.tasks.concat([action.payload.task])
+      };
+    default:
+        return state;
+  }
+}
 
-### `npm run build`
+// Reducerをstoreに登録
+const store = createStore(tasksReducer);
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+const handleChange = () => {
+    // store.getState()で情報取得
+    console.log(store.getState());
+}
+// subscribe = Dispatchによってstoreの状態が変わったか監視
+const unsubscribe = store.subscribe(handleChange);
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+// actionタイプ
+const addTask = (task) => ({
+    type: 'ADD_TASK',
+    payload: {
+        task,
+    }
+});
 
-### `npm run eject`
+// actionへDispatch(情報を送信) ※本来はViewからおこなう
+store.dispatch(addTask('Storeを学ぶ'));
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+# Reactに組み合わせる
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```jsx:index.js
+import React from 'react';
+import { render } from 'react-dom';
+import { createStore } from 'redux';
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+// State(初期値)
+const initialState = {
+  task: '',
+  tasks: [],
+}
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+// Reducer
+const tasksReducer = (state = initialState, action) => {
+  switch(action.type) {
+    case 'INPUT_TASK':
+      return {
+        ...state,
+        task: action.payload.task
+      };
+    case 'ADD_TASK':
+      return {
+        ...state,
+        tasks: state.tasks.concat([action.payload.task])
+      };
+    default:
+      return state;
+  }
+}
 
-## Learn More
+// ReducerをStateに登録
+const store = createStore(tasksReducer);
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+// Action
+const inputTask = (task) => ({
+  type: 'INPUT_TASK',
+  payload: {
+    task,
+  }
+});
+const addTask = (task) => ({
+  type: 'ADD_TASK',
+  payload: {
+    task,
+  }
+});
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+// コンポーネント(ActionへDispatch)
+const TodoApp = ({ store }) => {
+  const { task, tasks } = store.getState();
+  
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Please Input"
+        onChange={(e) => store.dispatch(inputTask(e.target.value))}
+      />
+      <input
+        type="button"
+        value="add"
+        onClick={ () => store.dispatch(addTask(task)) }
+      />
+      <ul>
+        {
+          tasks.map((item, i) => {
+            return (
+              <li key={i}>{item}</li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  );
+}
 
-### Code Splitting
+// 最終htmlに集約
+const renderApp = (store) => {
+  render(
+    <TodoApp store={store} />,
+    document.getElementById('root')
+  );
+}
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+store.subscribe(() => renderApp(store));
+renderApp(store);
+```
 
-### Analyzing the Bundle Size
+## ファイルを分割する
+.
+├── index.js
+├── components
+      └── TodoApp.js
+├── actions
+      └── tasks.js
+└── reducers
+      └── tasks.js
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+```js:reducers/tasks.js
+// State(初期値)
+const initialState = {
+    task: '',
+    tasks: [],
+}
 
-### Making a Progressive Web App
+// Reducer
+const tasksReducer = (state = initialState, action) => {
+    switch(action.type) {
+        case 'INPUT_TASK':
+        return {
+            ...state,
+            task: action.payload.task
+        };
+        case 'ADD_TASK':
+        return {
+            ...state,
+            tasks: state.tasks.concat([action.payload.task])
+        };
+        default:
+        return state;
+    }
+}
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+// 追加
+export default tasksReducer;
+```
 
-### Advanced Configuration
+```js:actions/actions.js
+// Action
+// export追加
+export const inputTask = (task) => ({
+    type: 'INPUT_TASK',
+    payload: {
+        task,
+    }
+});
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+// export追加
+export const addTask = (task) => ({
+    type: 'ADD_TASK',
+    payload: {
+        task,
+    }
+});
+```
 
-### Deployment
+```jsx:components/TodoApp.js
+import React from 'react';
+// さきほど分割したActionを追加
+import { inputTask, addTask } from '../actions/tasks';
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+// コンポーネント(ActionへDispatch)
+const TodoApp = ({ store }) => {
+    const { task, tasks } = store.getState();
 
-### `npm run build` fails to minify
+    return (
+        <div>
+            <input
+                type="text"
+                placeholder="Please Input"
+                onChange={(e) => store.dispatch(inputTask(e.target.value))}
+            />
+            <input
+                type="button"
+                value="add"
+                onClick={ () => store.dispatch(addTask(task)) }
+            />
+            <ul>
+                {tasks.map((item, i) => {
+                    return <li key={i}>{item}</li>;
+                })}
+            </ul>
+        </div>
+    );
+}
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+// 追加
+export default TodoApp;
+```
+
+```jsx:index.js
+import React from 'react';
+import { render } from 'react-dom';
+import { createStore } from 'redux';
+// さきほど分割したReducerとComponentsを追加
+import tasksReducer from './reducers/tasks';
+import TodoApp from './components/TodoApp';
+
+// ReducerをStateに登録
+const store = createStore(tasksReducer);
+
+// 最終htmlに集約
+const renderApp = (store) => {
+  render(
+    <TodoApp store={store} />,
+    document.getElementById('root')
+  );
+}
+
+store.subscribe(() => renderApp(store));
+renderApp(store);
+```
+
+# react-reduxのインストール
+
+```bash
+$ npm install --save react-redux
+```
+
+```jsx:index.js
+import { Provider } from 'react-redux';
+```
+
+#### 注. react-reduxモジュール入れる際に起こったエラー
+
+プロジェクト名（フォルダ名）を同名の「react-redux」にしていたところ
+「$ npm install --save react-redux」
+でモジュールを追加しようとしたエラーとなりましたので
+React以外でも同じ現象が起こる可能性がありますので共有します。
+
+#### 解決策
+- フォルダ名を別の名前に変える
+- package.jsonのnameを変更した名前に修正する
+
+[解決に至ったURL](https://stackoverflow.com/questions/42436789/installing-react-redux-from-cmd-error?rq=1)
+
+# Todoアプリにreact-reduxを導入する
+
+.
+├── index.js
+├── containers ※追加
+    └── TodoApp.js ※追加
+├── components
+├── actions
+└── reducers
+
+```jsx:containers/TodoApp.js
+import { connect } from 'react-redux';
+import TodoApp from '../components/TodoApp';
+import { inputTask, addTask } from '../actions/tasks';
+
+const mapStateToProps = ({ task, tasks }) => {
+    return {
+        task, // Inputに入力されたタスク
+        tasks, // タスクの配列
+    };
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        // タスクを追加する関数
+        addTask(task) {
+            dispatch(addTask(task));
+        },
+        //　タスクを入力する関数
+        inputTask(task) {
+            dispatch(inputTask(task));
+        }
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoApp);
+```
+
+task　Inputに入力されたタスク
+tasks　タスクの配列
+addTask　タスクを追加する関数
+inputTask　タスクを入力する関数
+
+上記4点、propsで受け渡している
+
+他修正
+
+```jsx:components/TodoApp.js
+import React from 'react';
+
+const TodoApp = ({ task, tasks, inputTask, addTask }) => {
+    return (
+        <div>
+            <input
+                type="text"
+                placeholder="Please Input"
+                onChange={(e) => inputTask(e.target.value)}
+            />
+            <input
+                type="button"
+                value="add"
+                onClick={ () => addTask(task) }
+            />
+            <ul>
+                {tasks.map((item, i) => {
+                    return <li key={i}>{item}</li>;
+                })}
+            </ul>
+        </div>
+    );
+}
+
+export default TodoApp;
+```
+
+```jsx:index.js
+import React from 'react';
+import { render } from 'react-dom';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux'; // 追加
+import tasksReducer from './reducers/tasks';
+import TodoApp from './containers/TodoApp'; // 変更
+
+// ReducerをStateに登録
+const store = createStore(tasksReducer);
+
+// 最終htmlに集約
+const renderApp = (store) => {
+  render(
+    // Providerでラップ
+    <Provider store={store}>
+      <TodoApp />
+    </Provider>,
+    document.getElementById('root')
+  );
+}
+
+store.subscribe(() => renderApp(store));
+renderApp(store);
+```
