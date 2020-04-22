@@ -406,3 +406,55 @@ const renderApp = (store) => {
 store.subscribe(() => renderApp(store));
 renderApp(store);
 ```
+
+# ルーティング
+
+react-routerインストール
+
+```bash
+$ npm install --save react-router-dom
+```
+
+```jsx:index.js
+// 追加
+import App from './App';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+
+// ...省略
+
+const renderApp = (store) => {
+  render(
+    <Provider store={store}>
+      <Router>
+        <Route path="/" component={ App } />
+      </Router>
+    </Provider>,
+    document.getElementById('root')
+  );
+}
+
+// ...省略
+```
+
+## Route
+Routeにexactをつけることでpathが完全一致した時のみ
+そのコンポーネントが描画されます。
+
+```jsx:index.js
+<Router>
+  <Route exact path="/" component={ App } />
+  <Route exact path="/todo" component={ TodoApp } />
+  <Route exact path="/todo/:id" component={ TodoApp } />
+</Router>
+```
+※「:id」はどんな文字列でも描画される
+
+リンクタグ
+
+```jsx:App.js 
+import { Link } from 'react-router-dom';
+
+<div className="App">
+  <Link to="./todo" className="link">Todo</Link> 
+</div>
+```
