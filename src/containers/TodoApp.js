@@ -2,10 +2,10 @@ import { connect } from 'react-redux';
 import TodoApp from '../components/TodoApp';
 import { inputTask, addTask } from '../actions/tasks';
 
-const mapStateToProps = ({ task, tasks }) => {
+const mapStateToProps = ({ tasks }) => {
     return {
-        task, // Inputに入力されたタスク
-        tasks, // タスクの配列
+        task: tasks.task,
+        tasks: tasks.tasks
     };
 }
 

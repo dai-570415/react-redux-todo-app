@@ -458,3 +458,72 @@ import { Link } from 'react-router-dom';
   <Link to="./todo" className="link">Todo</Link> 
 </div>
 ```
+
+
+# react-router-redux導入
+
+```bash
+$ npm install --save react-router-dom history react-router-redux@next
+$ npm install --save connected-react-router
+```
+
+```js:store/index.js
+import { 
+    createStore as reduxCreateStore,
+    combineReducers,
+    applyMiddleware,
+} from 'redux';
+import { connectRouter } from 'connected-react-router';
+import { routerMiddleware } from 'react-router-redux';
+import tasksReducer from '../reducers/tasks';
+
+const createStore = (history) => {
+    return reduxCreateStore(
+        combineReducers({
+            tasks: tasksReducer,
+            router: connectRouter(history),
+        }),
+        applyMiddleware(
+            routerMiddleware(history),
+        ),
+    );
+}
+
+export default createStore;
+```
+
+```jsx:index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import { ConnectedRouter } from 'connected-react-router';
+import { createBrowserHistory } from 'history';
+import TodoApp from './containers/TodoApp';
+import createStore from './store';
+
+const history = createBrowserHistory();
+
+const store = createStore(history);
+
+ReactDOM.render(
+  <Provider store={store}> 
+    <ConnectedRouter history={history}>
+      <TodoApp />
+    </ConnectedRouter>
+  </Provider>,
+  document.getElementById('root')
+);
+```
+
+```js:containers/TodoApp.js
+// 省略
+
+const mapStateToProps = ({ tasks }) => {
+    return {
+        task: tasks.task,
+        tasks: tasks.tasks
+    };
+}
+
+// 省略
+```
