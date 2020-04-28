@@ -5,12 +5,12 @@ import {
 } from 'redux';
 import { connectRouter } from 'connected-react-router';
 import { routerMiddleware } from 'react-router-redux';
-import tasksReducer from '../reducers/tasks';
+import * as reducers from '../reducers';
 
 const createStore = (history) => {
     return reduxCreateStore(
         combineReducers({
-            tasks: tasksReducer,
+            ...reducers,
             router: connectRouter(history),
         }),
         applyMiddleware(

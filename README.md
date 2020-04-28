@@ -527,3 +527,24 @@ const mapStateToProps = ({ tasks }) => {
 
 // 省略
 ```
+
+reducerの集約
+
+```js:reducers/index.js
+export { default as tasks } from './tasks';
+```
+
+```js:store/index.js
+// import tasksReducer from '../reducers/tasks';
+import * as reducers from '../reducers';
+
+const createStore = (history) => {
+    return reduxCreateStore(
+        combineReducers({
+            // tasks: tasksReducer,
+            ...reducers,
+            router: connectRouter(history),
+        }),
+        // 省略
+    );
+}
