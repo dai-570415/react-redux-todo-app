@@ -625,6 +625,8 @@ export default {
 ```
 
 ```js:actions/tasks.test.js
+// actions/tasks.test.js
+
 import actions from './tasks';
 
 describe('Actions', () => {
