@@ -1,8 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const TodoApp = ({ task, tasks, inputTask, addTask }) => {
     return (
         <div>
+            <Link to="/" className="link">Topへ</Link>
             <input
                 type="text"
                 placeholder="Please Input"

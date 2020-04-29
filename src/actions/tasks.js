@@ -13,3 +13,6 @@ export const addTask = (task) => ({
     }
 });
 
+export default {
+    addTask,
+}

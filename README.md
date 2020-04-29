@@ -23,6 +23,8 @@ $ npm install --save redux
 ## Reduxの基本形
 
 ```js:index.js
+// index.js
+
 import { createStore } from 'redux';
 
 // 初期値
@@ -69,6 +71,8 @@ store.dispatch(addTask('Storeを学ぶ'));
 # Reactに組み合わせる
 
 ```jsx:index.js
+// index.js
+
 import React from 'react';
 import { render } from 'react-dom';
 import { createStore } from 'redux';
@@ -173,6 +177,8 @@ renderApp(store);
       └── tasks.js
 
 ```js:reducers/tasks.js
+// reducers/tasks.js
+
 // State(初期値)
 const initialState = {
     task: '',
@@ -202,6 +208,8 @@ export default tasksReducer;
 ```
 
 ```js:actions/actions.js
+// actions/actions.js
+
 // Action
 // export追加
 export const inputTask = (task) => ({
@@ -221,6 +229,8 @@ export const addTask = (task) => ({
 ```
 
 ```jsx:components/TodoApp.js
+// components/TodoApp.js
+
 import React from 'react';
 // さきほど分割したActionを追加
 import { inputTask, addTask } from '../actions/tasks';
@@ -255,6 +265,8 @@ export default TodoApp;
 ```
 
 ```jsx:index.js
+// index.js
+
 import React from 'react';
 import { render } from 'react-dom';
 import { createStore } from 'redux';
@@ -284,6 +296,8 @@ $ npm install --save react-redux
 ```
 
 ```jsx:index.js
+// index.js
+
 import { Provider } from 'react-redux';
 ```
 
@@ -317,6 +331,8 @@ React以外でも同じ現象が起こる可能性がありますので共有し
 └── reducers
 
 ```jsx:containers/TodoApp.js
+// containers/TodoApp.js
+
 import { connect } from 'react-redux';
 import TodoApp from '../components/TodoApp';
 import { inputTask, addTask } from '../actions/tasks';
@@ -354,6 +370,8 @@ inputTask　タスクを入力する関数
 他修正
 
 ```jsx:components/TodoApp.js
+// components/TodoApp.js
+
 import React from 'react';
 
 const TodoApp = ({ task, tasks, inputTask, addTask }) => {
@@ -382,6 +400,8 @@ export default TodoApp;
 ```
 
 ```jsx:index.js
+// index.js
+
 import React from 'react';
 import { render } from 'react-dom';
 import { createStore } from 'redux';
@@ -416,6 +436,8 @@ $ npm install --save react-router-dom
 ```
 
 ```jsx:index.js
+// index.js
+
 // 追加
 import App from './App';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
@@ -441,6 +463,8 @@ Routeにexactをつけることでpathが完全一致した時のみ
 そのコンポーネントが描画されます。
 
 ```jsx:index.js
+// index.js
+
 <Router>
   <Route exact path="/" component={ App } />
   <Route exact path="/todo" component={ TodoApp } />
@@ -452,6 +476,8 @@ Routeにexactをつけることでpathが完全一致した時のみ
 リンクタグ
 
 ```jsx:App.js 
+// App.js 
+
 import { Link } from 'react-router-dom';
 
 <div className="App">
@@ -468,6 +494,8 @@ $ npm install --save connected-react-router
 ```
 
 ```js:store/index.js
+// store/index.js
+
 import { 
     createStore as reduxCreateStore,
     combineReducers,
@@ -493,6 +521,8 @@ export default createStore;
 ```
 
 ```jsx:index.js
+// index.js
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -516,6 +546,8 @@ ReactDOM.render(
 ```
 
 ```js:containers/TodoApp.js
+// containers/TodoApp.js
+
 // 省略
 
 const mapStateToProps = ({ tasks }) => {
@@ -531,10 +563,14 @@ const mapStateToProps = ({ tasks }) => {
 reducerの集約
 
 ```js:reducers/index.js
+// reducers/index.js
+
 export { default as tasks } from './tasks';
 ```
 
 ```js:store/index.js
+// store/index.js
+
 // import tasksReducer from '../reducers/tasks';
 import * as reducers from '../reducers';
 
@@ -548,3 +584,60 @@ const createStore = (history) => {
         // 省略
     );
 }
+```
+
+# テストフレームワーク
+
+### Jestを使う
+
+```js:sum.js
+// sum.js
+
+// aとbを足すだけの簡単な関数用意
+export default (a, b) => a + b;
+```
+
+```js:sum.test.js
+// sum.test.js
+
+import sum from './sum';
+
+test('sum', () => {
+    expect(sum(1, 2)).toBe(3);
+});
+```
+
+```bash
+npm test
+```
+もし間違えていたらエラー、整合していたらPASSになる。
+
+
+### ActionCreatorのテスト
+
+```js:actions/tasks.js
+// actions/tasks.js
+
+// 追加
+export default {
+    addTask,
+}
+```
+
+```js:actions/tasks.test.js
+import actions from './tasks';
+
+describe('Actions', () => {
+    test('addTask Action', () => {
+        const task = '買い物';
+        const result = actions.addTask(task);
+        const expected = {
+            type: 'ADD_TASK',
+            payload: {
+                task,
+            }
+        };
+        expect(result).toEqual(expected);
+    })
+});
+```
